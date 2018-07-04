@@ -1,4 +1,4 @@
-TARGET = deepwalk
+TARGET = node2vec
 
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
