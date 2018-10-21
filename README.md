@@ -72,4 +72,4 @@ If you find node2vec useful in your research, we ask that you cite the original 
 
 ## Contact
 
-`echo "%7=87.=<2=<>527@192.()" | tr '#-)/->' '_-|'`
+`echo "%7=87@=<2=<>5.27" | tr '#-)/->' '_-|'`
