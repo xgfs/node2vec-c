@@ -104,9 +104,12 @@ static inline double drand() {
   return a.d - 1.0;
 }
 
-inline int irand(int max) { return lrand() % max; }
+inline int irand(uint32_t max) {
+  uint32_t rnd = lrand();
+  return (uint64_t(rnd) * uint64_t(max)) >> 32;
+}
 
-inline int irand(int min, int max) { return lrand() % (max - min) + min; }
+inline int irand(uint32_t min, uint32_t max) { return irand(max - min) + min; }
 
 inline void *
 aligned_malloc(size_t size,
@@ -278,9 +281,9 @@ void Train() {
 
       for (int dwi = 0; dwi < walk_length; dwi++) {
         int b = irand(window_size); // subsample window size
-        int n1 = dw_rw[dwi];
-        if (n1 < 0)
+        if (dw_rw[dwi] < 0)
           break;
+	size_t n1 = dw_rw[dwi];
         if ((sqrt(node_cnts[n1] / subsample) + 1) * subsample / node_cnts[n1] <
             drand()) // randomly subsample frequent nodes
           continue;
@@ -288,14 +291,14 @@ void Train() {
              dwj < min(dwi + window_size - b + 1, walk_length); dwj++) {
           if (dwi == dwj)
             continue;
-          int n2 = dw_rw[dwj];
-          if (n2 < 0)
+          if (dw_rw[dwj] < 0)
             break;
+	  size_t n2 = dw_rw[dwj];
 
           memset(cache, 0, n_hidden * sizeof(float)); // clear cache
           update(&wCtx[n1 * n_hidden], &wVtx[n2 * n_hidden], cache, lr, 1);
           for (int i = 0; i < n_neg_samples; i++) {
-            int neg = walker_draw(nv, neg_qs, neg_js);
+            size_t neg = walker_draw(nv, neg_qs, neg_js);
             while (neg == n2)
               neg = walker_draw(nv, neg_qs, neg_js);
             update(&wCtx[neg * n_hidden], &wVtx[n2 * n_hidden], cache, lr, 0);
