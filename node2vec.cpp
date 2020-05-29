@@ -264,7 +264,7 @@ void Train() {
         ncount++;
         continue;
       }
-      int lastedgeidx = irand(offsets[dw_rw[0]], offsets[dw_rw[0] + 1]);
+      ull lastedgeidx = offsets[dw_rw[0]] + irand(offsets[dw_rw[0] + 1] - offsets[dw_rw[0]]);
       dw_rw[1] = edges[lastedgeidx];
       for (int i = 2; i < walk_length; i++) {
         int lastnode = dw_rw[i - 1];
@@ -412,13 +412,13 @@ int main(int argc, char **argv) {
   memset(n2v_js, 0, edge_offsets[ne] * sizeof(float));
 #pragma omp parallel for num_threads(n_threads)
   for (int src = 0; src < nv; src++) {
-    for (int dsti = offsets[src]; dsti < offsets[src + 1]; dsti++) {
+    for (ull dsti = offsets[src]; dsti < offsets[src + 1]; dsti++) {
       int dst = edges[dsti];
       double sum = 0;
       int dst_degree = degrees[dst];
-      for (int dstadji = offsets[dst]; dstadji < offsets[dst + 1]; dstadji++) {
+      for (ull dstadji = offsets[dst]; dstadji < offsets[dst + 1]; dstadji++) {
         int dstadj = edges[dstadji];
-        int curidx = edge_offsets[dsti] + dstadji - offsets[dst];
+        ull curidx = edge_offsets[dsti] + dstadji - offsets[dst];
         if (dstadj == src) {
           n2v_qs[curidx] = 1 / p;
           sum += 1 / p;
@@ -433,7 +433,7 @@ int main(int argc, char **argv) {
         }
       }
 #pragma omp simd
-      for (int i = edge_offsets[dsti]; i < edge_offsets[dsti] + dst_degree; i++)
+      for (ull i = edge_offsets[dsti]; i < edge_offsets[dsti] + dst_degree; i++)
         n2v_qs[i] *= dst_degree / sum;
       init_walker(dst_degree, &n2v_js[edge_offsets[dsti]],
                   &n2v_qs[edge_offsets[dsti]]);
